@@ -28,12 +28,7 @@ jobs:
       - name: Configure custom domain
         run: |
           if ! grep -q "warden.inory.eu.org" wrangler.toml; then
-            cat <<'TOMLEOF' >> wrangler.toml
-
-routes = [
-  { pattern = "warden.inory.eu.org", custom_domain = true }
-]
-TOMLEOF
+            printf '\nroutes = [{ pattern = "warden.inory.eu.org", custom_domain = true }]\n' >> wrangler.toml
           fi
 
       - name: Deploy to Cloudflare Workers
