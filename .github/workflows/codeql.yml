@@ -15,6 +15,7 @@ jobs:
   analyze:
     name: CodeQL Analyze (${{ matrix.language }})
     runs-on: ubuntu-latest
+    if: ${{ !github.event.repository.fork }}
 
     strategy:
       fail-fast: false
