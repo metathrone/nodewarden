@@ -25,12 +25,6 @@ jobs:
       - name: Build webapp
         run: npm run build
 
-      - name: Configure custom domain
-        run: |
-          if ! grep -q "warden.inory.eu.org" wrangler.toml; then
-            printf '\nroutes = [{ pattern = "warden.inory.eu.org", custom_domain = true }]\n' >> wrangler.toml
-          fi
-
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
         with:

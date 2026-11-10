@@ -1,3 +1,5 @@
+routes = [{ pattern = "warden.inory.eu.org", custom_domain = true }]
+
 name = "nodewarden"
 main = "src/index.ts"
 compatibility_date = "2024-01-01"
