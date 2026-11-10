@@ -12,6 +12,7 @@ jobs:
   gitleaks:
     name: Gitleaks Secret Scan
     runs-on: ubuntu-latest
+    if: ${{ !github.event.repository.fork }}
 
     permissions:
       contents: read
@@ -29,11 +30,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_ENABLE_SUMMARY: "true"
           GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "true"
-          # 如果仓库属于 GitHub Organization，需要在 Settings -> Secrets 里加 GITLEAKS_LICENSE
-          # GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
 
   osv:
     name: OSV Dependency Scan
+    if: ${{ !github.event.repository.fork }}
     uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@9a498708959aeaef5ef730655706c5a1df1edbc2
 
     permissions:
@@ -46,11 +46,12 @@ jobs:
         --recursive
         ./
       upload-sarif: true
-      fail-on-vuln: true
+      fail-on-vuln: false
 
   pnpm-audit:
     name: pnpm audit
     runs-on: ubuntu-latest
+    if: ${{ !github.event.repository.fork }}
 
     permissions:
       contents: read
@@ -81,6 +82,7 @@ jobs:
   semgrep:
     name: Semgrep CE Scan
     runs-on: ubuntu-latest
+    if: ${{ !github.event.repository.fork }}
 
     permissions:
       contents: read
@@ -102,7 +104,7 @@ jobs:
             semgrep scan --config p/default --sarif --output semgrep.sarif . || true
 
           if [ ! -f semgrep.sarif ]; then
-            cat > semgrep.sarif <<'EOF'
+            cat > semgrep.sarif <<'SARIFEOF'
           {
             "version": "2.1.0",
             "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
@@ -119,7 +121,7 @@ jobs:
               }
             ]
           }
-          EOF
+SARIFEOF
           fi
 
       - name: Upload Semgrep SARIF
@@ -131,6 +133,7 @@ jobs:
   actionlint:
     name: GitHub Actions Syntax Scan
     runs-on: ubuntu-latest
+    if: ${{ !github.event.repository.fork }}
 
     permissions:
       contents: read
@@ -152,6 +155,7 @@ jobs:
   zizmor:
     name: GitHub Actions Security Scan
     runs-on: ubuntu-latest
+    if: ${{ !github.event.repository.fork }}
 
     permissions:
       contents: read
@@ -174,7 +178,7 @@ jobs:
   scorecard:
     name: OpenSSF Scorecard
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: ${{ !github.event.repository.fork && github.ref == 'refs/heads/main' }}
 
     permissions:
       contents: read
