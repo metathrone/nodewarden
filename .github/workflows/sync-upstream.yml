@@ -1,0 +1,35 @@
+name: Upstream Sync
+
+on:
+  schedule:
+    - cron: "0 0 * * *" # Daily
+  workflow_dispatch:
+
+jobs:
+  sync:
+    name: Sync latest commits from upstream repo
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Sync upstream changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote add upstream https://github.com/shuaiplus/nodewarden.git || true
+          git fetch upstream main
+          git merge upstream/main -m "chore: sync upstream changes" || echo "No changes or merge already done"
+          git push origin main || echo "Nothing to push"
+
+      - name: Trigger Deploy
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run deploy.yml --repo "${{ github.repository }}" --ref main || true
