@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.SYNC_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Sync upstream changes
         run: |
@@ -25,11 +25,18 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git remote add upstream https://github.com/shuaiplus/nodewarden.git || true
           git fetch upstream main
-          git merge upstream/main -m "chore: sync upstream changes" || echo "No changes or merge already done"
+          if git merge -X ours upstream/main -m "chore: sync upstream changes" --no-edit; then
+            echo "Merged upstream changes successfully"
+          else
+            echo "Conflicts detected, resolving with ours..."
+            git checkout --ours .github/workflows/ || true
+            git add -A
+            git commit -m "chore: sync upstream changes" || true
+          fi
           git push origin main || echo "Nothing to push"
 
       - name: Trigger Deploy
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.SYNC_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
           gh workflow run deploy.yml --repo "${{ github.repository }}" --ref main || true
