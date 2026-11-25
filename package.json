@@ -68,6 +68,7 @@
     "@preact/preset-vite": "^2.10.6",
     "@tailwindcss/vite": "^4.3.3",
     "@types/node": "^26.6.4",
+    "cf": "^1.0.0-rc.6",
     "opencc-js": "^1.4.2",
     "tailwindcss": "^4.3.3",
     "tsx": "^4.23.15",
